@@ -1,11 +1,7 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { badRequest } from 'src/exceptions/badRequest';
 
 export interface SignInReturn {
   accessToken: string;
@@ -35,16 +31,7 @@ export class AuthService {
     const user = await this.userService.findOne(username);
 
     if (user) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'User with current username already exist',
-        },
-        HttpStatus.BAD_REQUEST,
-        {
-          description: 'User with current username already exist',
-        },
-      );
+      badRequest('User with current username already exist');
     }
 
     const createdUser = await this.userService.create(username, password);

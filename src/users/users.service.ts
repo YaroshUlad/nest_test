@@ -1,6 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserModel } from 'src/users/user.model';
 import { UpdateUserDto } from 'src/users/dto/updateUser.dto';
+import { badRequest } from 'src/exceptions/badRequest';
+import { notFound } from 'src/exceptions/notFound';
 
 @Injectable()
 export class UsersService {
@@ -24,16 +26,7 @@ export class UsersService {
   async findById(id: number): Promise<UserModel> {
     const user = this.users.find((user) => user.userId === id);
     if (!user) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'User with current id not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          description: 'User with current id not found',
-        },
-      );
+      notFound('User with current id not found');
     }
 
     return user;
@@ -46,29 +39,11 @@ export class UsersService {
   async update(id: number, payload: UpdateUserDto): Promise<UserModel> {
     const user = this.users.find((user) => user.userId === id);
     if (!user) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'User with current id not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          description: 'User with current id not found',
-        },
-      );
+      notFound('User with current id not found');
     }
 
     if (!payload.username.trim()) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Not valid username',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          description: 'Not valid username',
-        },
-      );
+      badRequest('Not valid username');
     }
 
     const newUser = { ...user, ...payload };
@@ -82,16 +57,7 @@ export class UsersService {
   async delete(id: number): Promise<[] | undefined> {
     const user = this.users.find((user) => user.userId === id);
     if (!user) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'User with current id not found',
-        },
-        HttpStatus.NOT_FOUND,
-        {
-          description: 'User with current id not found',
-        },
-      );
+      notFound('User with current id not found');
     }
 
     this.users = this.users.filter((el) => el.userId !== id);
