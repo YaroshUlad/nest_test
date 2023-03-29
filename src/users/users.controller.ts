@@ -7,12 +7,12 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Put,
+  // Put,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { UserModel } from 'src/users/user.model';
 import { UpdateUserDto } from 'src/users/dto/updateUser.dto';
-import { CreateUserDto } from 'src/users/dto/createUser.dto';
+// import { CreateUserDto } from 'src/users/dto/createUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -24,14 +24,14 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
-  @Patch(':id')
+  @Get(':id')
   getOne(@Param() params): Promise<UserModel> {
     const id = +params.id;
     return this.usersService.findById(id);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get(':id')
+  @Patch(':id')
   updateUser(
     @Param() params,
     @Body() payload: UpdateUserDto,
@@ -40,16 +40,16 @@ export class UsersController {
     return this.usersService.update(id, payload);
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   deleteUser(@Param() params): Promise<[]> {
     const id = +params.id;
     return this.usersService.delete(id);
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Put()
-  createUser(@Body() payload: CreateUserDto): Promise<UserModel> {
-    return this.usersService.create(payload.username, payload.password);
-  }
+  // @HttpCode(HttpStatus.CREATED)
+  // @Put()
+  // createUser(@Body() payload: CreateUserDto): Promise<UserModel> {
+  //   return this.usersService.create(payload.username, payload.password);
+  // }
 }

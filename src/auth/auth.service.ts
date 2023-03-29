@@ -38,11 +38,11 @@ export class AuthService {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'User with current username alredy exist',
+          error: 'User with current username already exist',
         },
         HttpStatus.BAD_REQUEST,
         {
-          description: 'User with current username alredy exist',
+          description: 'User with current username already exist',
         },
       );
     }
