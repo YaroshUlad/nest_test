@@ -10,6 +10,7 @@ import {
 import { AuthService, SignInReturn } from 'src/auth/auth.service';
 import { SignInDto } from 'src/auth/dto/signIn.dto';
 import { Public } from 'src/auth/constants';
+import { SignUpDto } from 'src/auth/dto/signUp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,14 +20,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: SignInDto): Promise<SignInReturn> {
-    return this.authService.signIn(signInDto.username, signInDto.password);
+    const res = this.authService.signIn(signInDto.username, signInDto.password);
+    return res;
   }
 
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('signup')
-  signUp(@Body() signInDto: SignInDto): Promise<SignInReturn> {
-    return this.authService.signUp(signInDto.username, signInDto.password);
+  signUp(@Body() signInDto: SignUpDto): Promise<SignInReturn> {
+    return this.authService.signUp(
+      signInDto.username,
+      signInDto.password,
+      signInDto.tag,
+    );
   }
 
   //@UseGuards(AuthGuard)

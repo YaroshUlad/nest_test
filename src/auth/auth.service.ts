@@ -16,6 +16,7 @@ export class AuthService {
 
   async signIn(username: string, password: string): Promise<SignInReturn> {
     const user = await this.userService.findOne(username);
+
     if (user?.password !== password) {
       throw new UnauthorizedException();
     }
@@ -27,16 +28,24 @@ export class AuthService {
     };
   }
 
-  async signUp(username: string, password: string): Promise<SignInReturn> {
+  async signUp(
+    username: string,
+    password: string,
+    tag?: string,
+  ): Promise<SignInReturn> {
     const user = await this.userService.findOne(username);
 
     if (user) {
       badRequest('User with current username already exist');
     }
 
-    const createdUser = await this.userService.create(username, password);
+    const { username: createdUsername, userId } = await this.userService.create(
+      username,
+      password,
+      tag,
+    );
 
-    const payload = { username: createdUser.username, sub: createdUser.userId };
+    const payload = { username: createdUsername, sub: userId };
 
     return {
       accessToken: await this.jwtService.signAsync(payload),

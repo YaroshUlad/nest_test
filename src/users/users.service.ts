@@ -1,73 +1,144 @@
 import { Injectable } from '@nestjs/common';
-import { UserModel } from 'src/users/user.model';
+import { UserModel, UserModelWithoutPassword } from 'src/users/user.model';
 import { UpdateUserDto } from 'src/users/dto/updateUser.dto';
 import { badRequest } from 'src/exceptions/badRequest';
 import { notFound } from 'src/exceptions/notFound';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/schemas/user.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersService {
-  private users: UserModel[] = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findOne(username: string): Promise<UserModel | undefined> {
-    return this.users.find((user) => user.username === username);
+    try {
+      const res = await this.userModel.find({ username });
+      console.log('res findOne ', res);
+      if (res.length === 0) return;
+      const {
+        id: userId,
+        username: alias,
+        tag,
+        password,
+        friends,
+        deeds,
+      } = res.find((user) => user.username === username);
+      return {
+        userId,
+        username: alias,
+        tag,
+        password,
+        friends,
+        deeds,
+      };
+    } catch (e) {
+      console.log(e);
+    }
   }
 
-  async findById(id: number): Promise<UserModel> {
-    const user = this.users.find((user) => user.userId === id);
-    if (!user) {
+  async findById(id: string): Promise<UserModelWithoutPassword> {
+    try {
+      const {
+        id: userId,
+        username,
+        tag,
+        friends,
+        deeds,
+      } = await this.userModel.findById(id);
+      // console.log('user by id ', user);
+      return {
+        userId,
+        username,
+        tag,
+        friends,
+        deeds,
+      };
+    } catch (e) {
       notFound('User with current id not found');
     }
-
-    return user;
   }
 
-  async getAll(): Promise<UserModel[]> {
-    return this.users ? this.users : [];
-  }
-
-  async update(id: number, payload: UpdateUserDto): Promise<UserModel> {
-    const user = this.users.find((user) => user.userId === id);
-    if (!user) {
-      notFound('User with current id not found');
+  async getAll(): Promise<UserModelWithoutPassword[]> {
+    try {
+      const res = await this.userModel.find();
+      return res.map(({ id: userId, username, tag, friends, deeds }) => ({
+        userId,
+        username,
+        tag,
+        friends,
+        deeds,
+      }));
+    } catch (e) {
+      console.log(e);
     }
+  }
 
-    if (!payload.username.trim()) {
+  async update(
+    id: string,
+    payload: UpdateUserDto,
+  ): Promise<UserModelWithoutPassword> {
+    if (!payload || !payload.username || !payload.username.trim()) {
       badRequest('Not valid username');
     }
-
-    const newUser = { ...user, ...payload };
-
-    this.users = this.users.map((el) =>
-      el.userId !== id ? el : { ...el, ...newUser },
-    );
-    return newUser;
-  }
-
-  async delete(id: number): Promise<[] | undefined> {
-    const user = this.users.find((user) => user.userId === id);
-    if (!user) {
+    try {
+      const {
+        id: userId,
+        username,
+        tag,
+        friends,
+        deeds,
+      } = await this.userModel.findByIdAndUpdate(
+        {
+          _id: id,
+        },
+        payload,
+      );
+      return {
+        userId,
+        username,
+        tag,
+        friends,
+        deeds,
+      };
+    } catch (e) {
       notFound('User with current id not found');
     }
-
-    this.users = this.users.filter((el) => el.userId !== id);
-    return [];
   }
 
-  async create(username: string, password: string): Promise<UserModel> {
-    const userId = Date.now();
-    const newUser = { userId, username, password };
-    this.users = [...this.users, newUser];
-    return newUser;
+  async delete(id: string): Promise<[] | undefined> {
+    try {
+      await this.userModel.findByIdAndDelete(id);
+      // console.log('after delete ', res);
+      return [];
+    } catch (e) {
+      notFound('User with current id not found');
+    }
+  }
+
+  async create(
+    username: string,
+    password: string,
+    tag?: string,
+  ): Promise<UserModel> {
+    try {
+      const res = await this.userModel.create({
+        username,
+        password,
+        tag: tag ? tag : username,
+        friends: [],
+        deeds: [],
+      });
+      return {
+        userId: res.id,
+        username: res.username,
+        password: res.password,
+        friends: [],
+        tag: res.tag,
+        deeds: [],
+      };
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

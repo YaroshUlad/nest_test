@@ -1,4 +1,5 @@
 export interface DeedModel {
-  id: number;
+  id: string;
   title: string;
+  ownerId: string;
 }

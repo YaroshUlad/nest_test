@@ -1,0 +1,3 @@
+interface CreateDeedDto {
+  title: string;
+}

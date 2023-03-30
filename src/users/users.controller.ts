@@ -10,9 +10,8 @@ import {
   // Put,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { UserModel } from 'src/users/user.model';
+import { UserModelWithoutPassword } from 'src/users/user.model';
 import { UpdateUserDto } from 'src/users/dto/updateUser.dto';
-// import { CreateUserDto } from 'src/users/dto/createUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -20,13 +19,13 @@ export class UsersController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  getAll(): Promise<UserModel[]> {
+  getAll(): Promise<UserModelWithoutPassword[]> {
     return this.usersService.getAll();
   }
 
   @Get(':id')
-  getOne(@Param() params): Promise<UserModel> {
-    const id = +params.id;
+  getOne(@Param() params): Promise<UserModelWithoutPassword> {
+    const { id } = params;
     return this.usersService.findById(id);
   }
 
@@ -35,21 +34,15 @@ export class UsersController {
   updateUser(
     @Param() params,
     @Body() payload: UpdateUserDto,
-  ): Promise<UserModel> {
-    const id = +params.id;
+  ): Promise<UserModelWithoutPassword> {
+    const { id } = params;
     return this.usersService.update(id, payload);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   deleteUser(@Param() params): Promise<[]> {
-    const id = +params.id;
+    const id = params.id;
     return this.usersService.delete(id);
   }
-
-  // @HttpCode(HttpStatus.CREATED)
-  // @Put()
-  // createUser(@Body() payload: CreateUserDto): Promise<UserModel> {
-  //   return this.usersService.create(payload.username, payload.password);
-  // }
 }
