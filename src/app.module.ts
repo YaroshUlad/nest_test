@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DeedsModule } from './deeds/deeds.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { FriendsModule } from './friends/friends.module';
 
 const uri = 'mongodb+srv://deeds:root@deeds.dg7fx9g.mongodb.net/test';
 
@@ -13,6 +14,7 @@ const uri = 'mongodb+srv://deeds:root@deeds.dg7fx9g.mongodb.net/test';
     AuthModule,
     UsersModule,
     DeedsModule,
+    FriendsModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri,

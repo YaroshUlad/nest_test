@@ -15,12 +15,13 @@ export class User {
   tag: string;
 
   @Prop({
-    required:
-      true /*type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Owner'*/,
+    required: true,
   })
   friends: string[];
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+  })
   deeds: string[];
 }
 

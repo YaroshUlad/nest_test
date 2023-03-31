@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   async signIn(username: string, password: string): Promise<SignInReturn> {
-    const user = await this.userService.findOne(username);
+    const user = await this.userService.find('username', username);
 
     if (user?.password !== password) {
       throw new UnauthorizedException();
@@ -33,7 +33,7 @@ export class AuthService {
     password: string,
     tag?: string,
   ): Promise<SignInReturn> {
-    const user = await this.userService.findOne(username);
+    const user = await this.userService.find('username', username);
 
     if (user) {
       badRequest('User with current username already exist');

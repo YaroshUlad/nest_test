@@ -1,3 +1,3 @@
-interface CreateDeedDto {
+export interface CreateDeedDto {
   title: string;
 }

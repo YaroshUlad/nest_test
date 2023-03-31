@@ -5,14 +5,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Deed, DeedDocument } from 'src/schemas/deed.schema';
 import { Model } from 'mongoose';
 import { badRequest } from 'src/exceptions/badRequest';
+import { User, UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
 export class DeedsService {
-  constructor(@InjectModel(Deed.name) private deedModel: Model<DeedDocument>) {}
+  constructor(
+    @InjectModel(Deed.name) private deedModel: Model<DeedDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+  ) {}
 
   async createDeed(ownerId: string, title: string): Promise<DeedModel> {
     try {
       const res = await this.deedModel.create({ ownerId, title });
+      await this.addDeedFromUser(ownerId, res.id);
 
       return { ownerId: res.ownerId, title, id: res.id };
     } catch (e) {
@@ -38,9 +43,10 @@ export class DeedsService {
     }
   }
 
-  async deleteDeed(id: string): Promise<[]> {
+  async deleteDeed(ownerId, id: string): Promise<[]> {
     try {
       await this.deedModel.findByIdAndDelete(id);
+      await this.deleteDeedFromUser(ownerId, id);
 
       return [];
     } catch (e) {
@@ -59,6 +65,26 @@ export class DeedsService {
         title: deed.title,
         id: deed.id,
       }));
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async addDeedFromUser(ownerId: string, deedId: string) {
+    try {
+      await this.userModel.findByIdAndUpdate(ownerId, {
+        $push: { deeds: deedId },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async deleteDeedFromUser(ownerId: string, deedId: string) {
+    try {
+      await this.userModel.findByIdAndUpdate(ownerId, {
+        $pull: { deeds: deedId },
+      });
     } catch (e) {
       console.log(e);
     }

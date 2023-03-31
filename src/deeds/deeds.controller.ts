@@ -13,12 +13,13 @@ import {
 
 import { DeedsService } from 'src/deeds/deeds.service';
 import { DeedModel } from 'src/deeds/deed.model';
+import { CreateDeedDto } from './dto/createDeed.dto';
 
 @Controller('deeds')
 export class DeedsController {
   constructor(private deedsService: DeedsService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   createDeed(
     @Body() payload: CreateDeedDto,
@@ -28,7 +29,7 @@ export class DeedsController {
     return this.deedsService.createDeed(ownerId, payload.title);
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Patch(':id')
   updateDeed(
     @Body() payload: CreateDeedDto,
@@ -40,9 +41,10 @@ export class DeedsController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  deleteDeed(@Param() params): Promise<[]> {
+  deleteDeed(@Param() params, @Request() req): Promise<[]> {
     const id = params.id;
-    return this.deedsService.deleteDeed(id);
+    const ownerId = req.user.sub;
+    return this.deedsService.deleteDeed(ownerId, id);
   }
 
   @HttpCode(HttpStatus.OK)

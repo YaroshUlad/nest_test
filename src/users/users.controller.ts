@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Param,
   Patch,
-  // Put,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { UserModelWithoutPassword } from 'src/users/user.model';
@@ -23,13 +22,14 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   getOne(@Param() params): Promise<UserModelWithoutPassword> {
     const { id } = params;
-    return this.usersService.findById(id);
+    return this.usersService.find('_id', id);
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Patch(':id')
   updateUser(
     @Param() params,

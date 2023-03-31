@@ -11,10 +11,10 @@ import { Model } from 'mongoose';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findOne(username: string): Promise<UserModel | undefined> {
+  async find(key: string, value: string): Promise<UserModel | undefined> {
     try {
-      const res = await this.userModel.find({ username });
-      console.log('res findOne ', res);
+      const res = await this.userModel.find({ [key]: value });
+      // console.log('res findOne ', res);
       if (res.length === 0) return;
       const {
         id: userId,
@@ -23,7 +23,7 @@ export class UsersService {
         password,
         friends,
         deeds,
-      } = res.find((user) => user.username === username);
+      } = res.find((user) => user[key === '_id' ? 'id' : key] === value);
       return {
         userId,
         username: alias,
@@ -33,29 +33,7 @@ export class UsersService {
         deeds,
       };
     } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async findById(id: string): Promise<UserModelWithoutPassword> {
-    try {
-      const {
-        id: userId,
-        username,
-        tag,
-        friends,
-        deeds,
-      } = await this.userModel.findById(id);
-      // console.log('user by id ', user);
-      return {
-        userId,
-        username,
-        tag,
-        friends,
-        deeds,
-      };
-    } catch (e) {
-      notFound('User with current id not found');
+      notFound(`User with current ${key} not found`);
     }
   }
 
@@ -88,11 +66,12 @@ export class UsersService {
         tag,
         friends,
         deeds,
-      } = await this.userModel.findByIdAndUpdate(
+      } = await this.userModel.findOneAndUpdate(
         {
           _id: id,
         },
-        payload,
+        { $set: payload },
+        { returnDocument: 'after', returnOriginal: false },
       );
       return {
         userId,
