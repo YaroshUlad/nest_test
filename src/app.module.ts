@@ -17,7 +17,7 @@ const MONGO_URI = 'mongodb+srv://deeds:root@deeds.dg7fx9g.mongodb.net/test';
     FriendsModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        MONGO_URI,
+        uri: MONGO_URI,
       }),
     }),
   ],
